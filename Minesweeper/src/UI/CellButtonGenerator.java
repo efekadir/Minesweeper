@@ -8,21 +8,22 @@ import javafx.scene.text.Text;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 import GameLogic.Cell;
-import GameManagement.GameSettings;
 
 public class CellButtonGenerator extends Button {
-	private StackPane graphicPane;
-	
+    private StackPane graphicPane;
+
     public Cell cell;
     public CellButton cellButton;
     private final double CELL_SIZE;
-    
+    private final double BOMB_SIZE;
+    private final double FLAG_SIZE;
+
     public RedFlag redFlag;
     public Mine mine;
-    
+
     public int row;
     public int column;
-    
+
     private static final String NORMAL_STYLE =
             "-fx-background-color: #c8c8c8;" +
             "-fx-border-color: #ffffff #808080 #808080 #ffffff;" +
@@ -37,17 +38,20 @@ public class CellButtonGenerator extends Button {
             "-fx-background-color: #bdbdbd;" +
             "-fx-border-color: #808080;" +
             "-fx-border-width: 2px;";
-    
+
     private static final String CLICKED_STYLE =
             "-fx-background-color: #999999;" +
             "-fx-border-color: #707070;" +
             "-fx-border-width: 2px;";
 
     public CellButtonGenerator(Cell cell, CellButton cellButton) {
-    	this.cell = cell;
-    	this.cellButton = cellButton;
-    	CELL_SIZE = cellButton.getGameSettings().getCellSize();
-    	
+
+        this.cell = cell;
+        this.cellButton = cellButton;
+        CELL_SIZE = cellButton.getGameSettings().getCellSize();
+        BOMB_SIZE = cellButton.getGameSettings().getBombSize();
+        FLAG_SIZE = cellButton.getGameSettings().getFlagSize();
+
         // Hücrenin boyutu
         this.setPrefSize(CELL_SIZE, CELL_SIZE);
         this.setMinSize(CELL_SIZE, CELL_SIZE);
@@ -61,77 +65,118 @@ public class CellButtonGenerator extends Button {
 
         // Mouse üzerine geldiğinde
         this.setOnMouseEntered(e -> {
-            if (!this.isPressed() && redFlag.isVisible() == false) {
+
+            if (!this.isDisabled() && !this.isPressed() && !redFlag.isVisible()) {
                 this.setStyle(HOVER_STYLE);
             }
         });
 
         // Mouse ayrıldığında
         this.setOnMouseExited(e -> {
-            if (!this.isPressed()) {
+
+            if (!this.isDisabled() && !this.isPressed() && !redFlag.isVisible()) {
                 this.setStyle(NORMAL_STYLE);
             }
         });
 
-        // Basıldığında
+        // Mouse basıldığında
         this.setOnMousePressed(e -> {
-            this.setStyle(PRESSED_STYLE);
-            
-            if (e.getButton() == MouseButton.SECONDARY && redFlag.isVisible()) {
-                redFlag.setVisible(false);
-                cellButton.setRemainingBombs(cellButton.getRemainingBombs() + 1);
-                cellButton.getBombCounter().setText("" + cellButton.getRemainingBombs());
-            }
-            else if(e.getButton() == MouseButton.SECONDARY && redFlag.isVisible() == false && cellButton.getRemainingBombs() > 0) {
-                redFlag.setVisible(true);
-                cellButton.setRemainingBombs(cellButton.getRemainingBombs() - 1);
-                cellButton.getBombCounter().setText("" + cellButton.getRemainingBombs());
+            if (e.getButton() == MouseButton.SECONDARY) {
+            	
+                // Bayrak varsa kaldır
+                if (redFlag.isVisible()) {
+                    redFlag.setVisible(false);
+                    cellButton.setRemainingBombs(cellButton.getRemainingBombs() + 1);
+                    cellButton.getBombCounter().setText("" + cellButton.getRemainingBombs());
+
+                    // Bayrak kaldırıldıktan sonra hover görünümü
+                    this.setStyle(HOVER_STYLE);
+                }
+
+                // Bayrak yoksa ve bomba hakkı varsa koy
+                else if (cellButton.getRemainingBombs() > 0) {
+                    redFlag.setVisible(true);
+                    cellButton.setRemainingBombs(cellButton.getRemainingBombs() - 1);
+
+                    cellButton.getBombCounter().setText("" + cellButton.getRemainingBombs());
+                }
+
+            } 
+            else {
+                // Sol tıklama
+            	if (!redFlag.isVisible()) {
+                    this.setStyle(PRESSED_STYLE);
+                }
             }
         });
 
-        // Bırakıldığında
+        // Mouse bırakıldığında
         this.setOnMouseReleased(e -> {
-            this.setStyle(HOVER_STYLE);
+
+            if (e.getButton() == MouseButton.PRIMARY && !this.isDisabled() && !redFlag.isVisible()) {
+                this.setStyle(HOVER_STYLE);
+            }
         });
-        
+
+        // Hücreye tıklama
         this.setOnAction(e -> {
-        	if(redFlag.isVisible() == false) {
-        		this.setDisable(true);
-                this.setStyle(CLICKED_STYLE);
-                         
-                if(cell.hasBomb) {
-                	cellButton.showBombs();
-                	
-                	PauseTransition pause = new PauseTransition(Duration.seconds(2));
-
-                    pause.setOnFinished(event -> {
-                    	cellButton.gameOverScreen.setVisible(true);
-                    });
-
-                    pause.play();
-                }
-                else {
-                	int bombAmount = cell.howManyBombs;
-                	System.out.println("Bomba sayısı: " + bombAmount);
-                	cellButton.safeCell();
-                	
-                	if(bombAmount > 0) {
-                		Text bombAmountText = new Text("" + bombAmount);
-                        bombAmountText.setFont(Font.font("Arial", 30));
-
-                        graphicPane.getChildren().add(bombAmountText);
-                	}
-                }
-        	}
-            
+        	if(redFlag.isVisible() == false) { 
+        		this.setDisable(true); 
+        		this.setStyle(CLICKED_STYLE); 
+        		if(cell.hasBomb) { 
+        			cellButton.showBombs(); 
+        			PauseTransition pause = new PauseTransition(Duration.seconds(2)); 
+        			pause.setOnFinished(event -> { cellButton.gameOverScreen.setVisible(true); }); 
+        			pause.play(); 
+        		} 
+        		else { 
+        			showBombAmount(); 
+        			if (cell.howManyBombs == 0) { 
+        				cellButton.multiButtonOpen(row, column); 
+        			} 
+        		} 
+        	} 
         });
-        
-        redFlag = new RedFlag();
-        mine = new Mine();
+
+        mine = new Mine(BOMB_SIZE);
+        redFlag = new RedFlag(FLAG_SIZE);
 
         graphicPane = new StackPane();
         graphicPane.getChildren().addAll(mine, redFlag);
 
         setGraphic(graphicPane);
+    }
+
+    public void showBombAmount() {
+
+        int bombAmount = cell.howManyBombs;
+
+        if (bombAmount > 0) {
+
+            Text bombAmountText =
+                    new Text("" + bombAmount);
+
+            bombAmountText.setFont(
+                    Font.font("Arial", 30)
+            );
+
+            graphicPane.getChildren().add(bombAmountText);
+        }
+    }
+
+    public void buttonClicked() {
+
+        this.setDisable(true);
+        this.setStyle(CLICKED_STYLE);
+
+        cell.isClicked = true;
+
+        showBombAmount();
+
+        cellButton.safeCell();
+    }
+
+    public static String getClickedStyle() {
+        return CLICKED_STYLE;
     }
 }
