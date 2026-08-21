@@ -5,6 +5,9 @@ import GameLogic.Cell;
 import GameManagement.GameSettings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class CellButton{
@@ -56,6 +59,7 @@ public class CellButton{
 			for(int j = 0; j < settings.getColumns(); j++) {
 				if(board.cells[i][j].hasBomb) {
 					this.cells[i][j].mine.setVisible(true);
+					this.cells[i][j].redFlag.setVisible(false);
 				}
 			}
 		}
@@ -67,6 +71,22 @@ public class CellButton{
 	    if (openedCellCount >= totalSafeCells) {
 	        winScreen.setVisible(true);
 	    }
+	}
+	
+	public void multiButtonOpen(int row, int column){
+		for(int a = row - 1; a <= row + 1; a++) {
+			for(int b = column - 1; b <= column + 1; b++) {
+	    		if((a >= 0 && b >= 0 && a < settings.getRows() && b < settings.getColumns()) && !(a == row && b == column)) {
+	    			if(board.cells[a][b].hasBomb == false && board.cells[a][b].isClicked == false && cells[a][b].redFlag.isVisible() == false) {
+	    				cells[a][b].buttonClicked();
+	    				
+	    				if(board.cells[a][b].howManyBombs == 0) {
+		    				multiButtonOpen(a, b);
+	    				}
+    	    		}
+	    		}
+	    	}
+    	}
 	}
 	
 	public int getRemainingBombs() {
