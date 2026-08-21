@@ -9,14 +9,20 @@ public class Config {
     public static final int STAGE1_COLUMNS = 10;
     public static final int STAGE1_BOMB_COUNT = 10;
     public static final int STAGE1_CELL_SIZE = 45;
+    public static final int STAGE1_BOMB_SIZE = 45;
+    public static final int STAGE1_FLAG_SIZE = 45;
 
     public static final int STAGE2_ROWS = 12;
     public static final int STAGE2_COLUMNS = 15;
     public static final int STAGE2_BOMB_COUNT = 30;
-    public static final int STAGE2_CELL_SIZE = 38;
+    public static final int STAGE2_CELL_SIZE = 40;
+    public static final int STAGE2_BOMB_SIZE = 40;
+    public static final int STAGE2_FLAG_SIZE = 40;
 
     public static final int STAGE3_ROWS = 15;
     public static final int STAGE3_COLUMNS = 20;
     public static final int STAGE3_BOMB_COUNT = 60;
-    public static final int STAGE3_CELL_SIZE = 32;
+    public static final int STAGE3_CELL_SIZE = 35;
+    public static final int STAGE3_BOMB_SIZE = 35;
+    public static final int STAGE3_FLAG_SIZE = 35;
 }
