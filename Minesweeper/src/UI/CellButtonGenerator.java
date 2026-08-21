@@ -79,9 +79,13 @@ public class CellButtonGenerator extends Button {
             
             if (e.getButton() == MouseButton.SECONDARY && redFlag.isVisible()) {
                 redFlag.setVisible(false);
+                cellButton.setRemainingBombs(cellButton.getRemainingBombs() + 1);
+                cellButton.getBombCounter().setText("" + cellButton.getRemainingBombs());
             }
-            else if(e.getButton() == MouseButton.SECONDARY && redFlag.isVisible() == false) {
+            else if(e.getButton() == MouseButton.SECONDARY && redFlag.isVisible() == false && cellButton.getRemainingBombs() > 0) {
                 redFlag.setVisible(true);
+                cellButton.setRemainingBombs(cellButton.getRemainingBombs() - 1);
+                cellButton.getBombCounter().setText("" + cellButton.getRemainingBombs());
             }
         });
 
@@ -109,6 +113,7 @@ public class CellButtonGenerator extends Button {
                 else {
                 	int bombAmount = cell.howManyBombs;
                 	System.out.println("Bomba sayısı: " + bombAmount);
+                	cellButton.safeCell();
                 	
                 	if(bombAmount > 0) {
                 		Text bombAmountText = new Text("" + bombAmount);
