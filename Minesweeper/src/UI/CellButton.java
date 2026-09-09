@@ -89,6 +89,14 @@ public class CellButton{
     	}
 	}
 	
+	public void disableAllCells() {
+	    for (int i = 0; i < settings.getRows(); i++) {
+	        for (int j = 0; j < settings.getColumns(); j++) {
+	            cells[i][j].setMouseTransparent(true);
+	        }
+	    }
+	}
+	
 	public int getRemainingBombs() {
 		return remainingBombs;
 	}
