@@ -3,29 +3,22 @@ package UI;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Pos;
-import javafx.scene.text.Font;
 import GameManagement.GameSettings;
 import javafx.geometry.Insets;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 public class MainMenuScreen {
 
-    private static final double DEFAULT_WIDTH = 1300;
+    private static final double DEFAULT_WIDTH = 1100;
     private static final double DEFAULT_HEIGHT = 800;
     
     private static final int BUTTON_SPACING = 15;
-    private static final int TOP_PADDING = 150;
+    private static final int TOP_PADDING = 240;
     
-    private static final String MENU_SCENE_PATH = "file:/Users/efekadirkucuk/Desktop/ChatGPT Image 23 Tem 2026 17_59_08.png";
-    private static final String SETTINGS_PATH = "file:images/GhostMainBackground.png";
-
-    private final Stage primaryStage;
+    private static final String MENU_SCENE_PATH = MainMenuScreen.class.getResource("/UI/images/MainMenuBackground.png").toExternalForm();    private final Stage primaryStage;
+ 
     private final Scene menuScene;
-    
     private SettingsScreen settingsScreen;
 
     public MainMenuScreen(Stage primaryStage) {
@@ -38,7 +31,7 @@ public class MainMenuScreen {
     	settingsScreen = new SettingsScreen();
         mainPane.getChildren().addAll(mainBackground, buttonsBox, settingsScreen);
                 
-        this.menuScene = new Scene(mainPane, getInitialWidth(), getInitialHeight());
+        this.menuScene = new Scene(mainPane);
         
         mainBackground.fitWidthProperty().bind(menuScene.widthProperty());
         mainBackground.fitHeightProperty().bind(menuScene.heightProperty());
@@ -61,17 +54,9 @@ public class MainMenuScreen {
         return buttons;
     }
 
-    private double getInitialWidth() {
-        return (primaryStage.getScene() != null) ? primaryStage.getScene().getWidth() : DEFAULT_WIDTH;
-    }
-
-    private double getInitialHeight() {
-        return (primaryStage.getScene() != null) ? primaryStage.getScene().getHeight() : DEFAULT_HEIGHT;
-    }
-
     private void playingScreen() {
-    	GameSettings settings = settingsScreen.getSelectedSettings();
-    	PlayingScreen playingScreen = new PlayingScreen(primaryStage, settings);
+        GameSettings settings = settingsScreen.getSelectedSettings();
+        PlayingScreen playingScreen = new PlayingScreen(primaryStage, settings);
         primaryStage.setScene(playingScreen.getScene());
     }
 
